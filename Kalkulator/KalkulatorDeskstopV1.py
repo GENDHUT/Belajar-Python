@@ -40,21 +40,17 @@ def divide():
     except ValueError:
         messagebox.showerror("Error", "Masukkan angka yang valid!")
 
-# Membuat window utama
 root = tk.Tk()
 root.title("Kalkulator Sederhana")
 
-# Label dan Entry untuk angka pertama
 tk.Label(root, text="Angka Pertama:").grid(row=0, column=0, padx=10, pady=10)
 entry1 = tk.Entry(root)
 entry1.grid(row=0, column=1, padx=10, pady=10)
 
-# Label dan Entry untuk angka kedua
 tk.Label(root, text="Angka Kedua:").grid(row=1, column=0, padx=10, pady=10)
 entry2 = tk.Entry(root)
 entry2.grid(row=1, column=1, padx=10, pady=10)
 
-# Frame untuk tombol operasi
 button_frame = tk.Frame(root)
 button_frame.grid(row=2, column=0, columnspan=2, pady=10)
 
@@ -70,7 +66,6 @@ btn_multiply.grid(row=0, column=2, padx=5, pady=5)
 btn_divide = tk.Button(button_frame, text="Bagi", width=10, command=divide)
 btn_divide.grid(row=0, column=3, padx=5, pady=5)
 
-# Label untuk menampilkan hasil
 result_label = tk.Label(root, text="Hasil: ", font=("Helvetica", 14))
 result_label.grid(row=3, column=0, columnspan=2, pady=10)
 

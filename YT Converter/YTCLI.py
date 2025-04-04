@@ -12,19 +12,15 @@ def get_available_formats(url):
         info = ydl.extract_info(url, download=False)
     formats = info.get("formats", [])
     
-    # Filter untuk format mp4 yang memiliki video dan informasi resolusi (height)
     filtered_formats = [f for f in formats if f.get("ext") == "mp4" and f.get("vcodec") != "none" and f.get("height")]
     
-    # Buat dictionary unik berdasarkan resolusi (misal "720p")
     unique = {}
     for f in filtered_formats:
         res = f.get("height")
         res_str = f"{res}p"
-        # Jika belum ada atau jika format sebelumnya tidak memiliki audio (acodec == "none")
         if res_str not in unique or (unique[res_str].get("acodec") == "none" and f.get("acodec") != "none"):
             unique[res_str] = f
 
-    # Urutkan resolusi dari tinggi ke rendah
     resolutions = sorted(unique.keys(), key=lambda x: int(x[:-1]), reverse=True)
     return unique, resolutions
 
@@ -40,7 +36,7 @@ def download_video(url, format_str):
     
     ydl_opts = {
         'format': format_str,
-        'merge_output_format': 'mp4',  # pastikan hasilnya dalam format mp4 jika perlu digabungkan
+        'merge_output_format': 'mp4',  
         'outtmpl': os.path.join(video_folder, '%(title)s.%(ext)s'),
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -66,25 +62,25 @@ def convert_to_mp3(video_path):
     return mp3_path
 
 def main():
-    while True:  # Menambahkan loop untuk mengulang proses
+    while True: 
         url = input("Masukan Link Youtube (atau ketik 'exit' untuk keluar): ").strip()
-        if url.lower() == "exit":  # Menambahkan opsi untuk keluar dari loop
+        if url.lower() == "exit": 
             print("Program dihentikan.")
-            break  # Keluar dari loop jika pengguna mengetik 'exit'
+            break 
         
         if not url:
             print("URL tidak diberikan. Silakan coba lagi.")
-            continue  # Kembali ke awal loop jika URL kosong
+            continue 
 
         try:
             unique_formats, resolutions = get_available_formats(url)
         except Exception as e:
             print("Terjadi kesalahan saat mengambil info video:", str(e))
-            continue  # Kembali ke awal loop jika ada error saat mengambil info video
+            continue 
 
         if not resolutions:
             print("Tidak ada format video yang cocok ditemukan.")
-            continue  # Kembali ke awal loop jika tidak ada format yang tersedia
+            continue
 
         print("Pilih resolusi video:")
         for i, res in enumerate(resolutions, start=1):
@@ -104,7 +100,7 @@ def main():
             selected_res = resolutions[0]
 
         chosen_format = unique_formats[selected_res]
-        # Jika format yang dipilih tidak memiliki audio, maka gunakan format gabungan video+audio
+        
         if chosen_format.get("acodec") == "none":
             height = chosen_format.get("height")
             format_str = f"bestvideo[height={height}][ext=mp4]+bestaudio[ext=m4a]/best"
@@ -119,12 +115,11 @@ def main():
         else:
             print("Proses download selesai.")
 
-        # Tanyakan apakah pengguna ingin mengunduh video lain
+       
         continue_choice = input("Apakah anda ingin mengunduh video lain? (y/n): ").strip().lower()
         if continue_choice != "y":
             print("Program dihentikan.")
-            break  # Jika jawabannya bukan 'y', keluar dari loop
-
+            break 
 
 if __name__ == "__main__":
     main()

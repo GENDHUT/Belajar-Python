@@ -7,18 +7,14 @@ def load_todos():
     if os.path.exists(FILE_NAME):
         with open(FILE_NAME, "r") as file:
             for line in file:
-                # Menghilangkan spasi dan newline
                 line = line.strip()
                 if line:
-                    # Format: "1. nama_todo , status= selesai/belum selesai"
                     try:
-                        # Memecah string berdasarkan titik untuk mengambil nomor, lalu pisahkan nama dan status
                         nomor_part, rest = line.split(".", 1)
                         nama_status = rest.strip().split(" , ")
                         if len(nama_status) == 2:
                             nama_todo = nama_status[0].strip()
                             status_part = nama_status[1].strip()
-                            # Menghapus "status=" dari status
                             status = status_part.replace("status=", "").strip()
                             todos.append({"nama": nama_todo, "status": status})
                     except Exception as e:
@@ -51,7 +47,6 @@ def update_status(todos):
         pilihan = int(input("Masukkan nomor to-do yang ingin diupdate statusnya: "))
         if 1 <= pilihan <= len(todos):
             todo = todos[pilihan - 1]
-            # Ganti status berdasarkan kondisi saat ini
             if todo["status"] == "belum selesai":
                 todo["status"] = "selesai"
             else:

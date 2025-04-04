@@ -15,19 +15,15 @@ def get_available_formats(url):
         info = ydl.extract_info(url, download=False)
     formats = info.get("formats", [])
     
-    # Filter untuk format mp4 yang memiliki video dan informasi resolusi (height)
     filtered_formats = [f for f in formats if f.get("ext") == "mp4" and f.get("vcodec") != "none" and f.get("height")]
     
-    # Buat dictionary unik berdasarkan resolusi (misal "720p")
     unique = {}
     for f in filtered_formats:
         res = f.get("height")
         res_str = f"{res}p"
-        # Jika belum ada atau jika format sebelumnya tidak memiliki audio (acodec == "none")
         if res_str not in unique or (unique[res_str].get("acodec") == "none" and f.get("acodec") != "none"):
             unique[res_str] = f
 
-    # Urutkan resolusi dari tinggi ke rendah
     resolutions = sorted(unique.keys(), key=lambda x: int(x[:-1]), reverse=True)
     return unique, resolutions
 
@@ -43,7 +39,7 @@ def download_video(url, format_str, output_folder):
     
     ydl_opts = {
         'format': format_str,
-        'merge_output_format': 'mp4',  # pastikan hasilnya dalam format mp4 jika perlu digabungkan
+        'merge_output_format': 'mp4',  
         'outtmpl': os.path.join(video_folder, '%(title)s.%(ext)s'),
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -70,29 +66,24 @@ class App:
         self.root = root
         root.title("YT Video Downloader & Converter")
         
-        # Baris 0: Input URL dan tombol untuk mengambil format
         tk.Label(root, text="Masukkan Link YouTube:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.url_entry = tk.Entry(root, width=60)
         self.url_entry.grid(row=0, column=1, padx=5, pady=5)
         self.get_formats_btn = tk.Button(root, text="Ambil Format", command=self.get_formats)
         self.get_formats_btn.grid(row=0, column=2, padx=5, pady=5)
         
-        # Baris 1: Drop-down untuk memilih resolusi
         tk.Label(root, text="Pilih Resolusi:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
         self.format_combo = ttk.Combobox(root, values=[], state="readonly", width=10)
         self.format_combo.grid(row=1, column=1, padx=5, pady=5, sticky="w")
         
-        # Baris 2: Checkbox untuk konversi ke MP3 dan tombol Download
         self.convert_var = tk.IntVar()
         tk.Checkbutton(root, text="Konversi ke MP3", variable=self.convert_var).grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.download_btn = tk.Button(root, text="Download", command=self.start_download)
         self.download_btn.grid(row=2, column=1, padx=5, pady=5, sticky="w")
         
-        # Baris 3: Area untuk log/status
         self.status_text = tk.Text(root, height=10, width=80, state="disabled")
         self.status_text.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
         
-        # Simpan path output (default: direktori saat ini)
         self.output_folder = os.getcwd()
         self.unique_formats = {}
     
@@ -114,13 +105,12 @@ class App:
                 messagebox.showinfo("Info", "Tidak ada format video yang cocok ditemukan.")
                 return
             self.format_combo['values'] = resolutions
-            self.format_combo.current(0)  # default ke resolusi tertinggi
+            self.format_combo.current(0)
             self.log("Format tersedia: " + ", ".join(resolutions))
         except Exception as e:
             messagebox.showerror("Error", f"Terjadi kesalahan saat mengambil info video: {e}")
     
     def start_download(self):
-        # Jalankan proses download dalam thread untuk mencegah GUI freeze
         thread = threading.Thread(target=self.download_process)
         thread.start()
     
