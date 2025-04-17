@@ -28,4 +28,4 @@ with open(output_path, "wb") as f:
     f.write(img2pdf.convert(list(file_paths)))
 
 print(f"PDF berhasil dibuat: {output_path}")
-os.startfile(os.path.dirname(output_path))  # Buka folder hasil
+os.startfile(os.path.dirname(output_path))  
