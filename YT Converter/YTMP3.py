@@ -43,9 +43,12 @@ def main():
             print("Terjadi kesalahan saat mengunduh audio:", str(e))
 
         again = input("Ingin unduh MP3 lain? (y/n): ").strip().lower()
-        if again != 'y':
+        if again == '' or again == 'y':
+            continue
+        else:
             print("Program dihentikan.")
             break
+
 
 if __name__ == "__main__":
     main()
