@@ -1,81 +1,101 @@
 import os
 import yt_dlp
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from tqdm import tqdm
 
-def download_single_video(entry, mp3_folder):
-    """
-    Mengunduh satu video dari data playlist (entry) ke file MP3.
-    """
+def progress_hook(d):
+    if d['status'] == 'downloading':
+        filename = d.get('filename', '...')
+        total_bytes = d.get('total_bytes', 0) or d.get('total_bytes_estimate', 0)
+        downloaded_bytes = d.get('downloaded_bytes', 0)
+        percent = downloaded_bytes / total_bytes * 100 if total_bytes else 0
+        print(f"\r⬇️  Mengunduh: {os.path.basename(filename)} - {percent:.1f}% ", end='', flush=True)
+    elif d['status'] == 'finished':
+        print(f"\n✅ Selesai: {os.path.basename(d['filename'])}")
+
+def download_single_video(url, output_dir):
     ydl_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': os.path.join(mp3_folder, '%(title)s.%(ext)s'),
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
+        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
         'quiet': True,
         'noplaylist': True,
+        'progress_hooks': [progress_hook],
+        'postprocessors': [
+            {
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }
+        ]
     }
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(entry['url'], download=True)
-            return info.get('title', 'audio')
-    except Exception as e:
-        return f"[Gagal] {entry['url']} ({str(e)})"
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        print(f"🎵 Audio '{info.get('title', 'unknown')}' berhasil diunduh.")
 
+def download_playlist(url, base_dir):
+    print("📥 Mengambil daftar video dari playlist...")
 
-def download_mp3(url):
-    """
-    Mengunduh audio dari YouTube video tunggal atau playlist.
-    Menggunakan multi-threading dan progress bar.
-    """
-    mp3_folder = os.path.join(os.getcwd(), "MP3")
-    os.makedirs(mp3_folder, exist_ok=True)
+    flat_opts = {
+        'quiet': True,
+        'extract_flat': True,
+        'force_generic_extractor': False,
+    }
 
-    # Ekstrak info awal tanpa download
-    with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+    with yt_dlp.YoutubeDL(flat_opts) as ydl:
         info = ydl.extract_info(url, download=False)
+        entries = info.get('entries', [])
+        playlist_title = info.get('title', 'playlist')
 
-    if 'entries' in info:  # Playlist
-        entries = info['entries']
-        print(f"Playlist ditemukan: {info.get('title', 'Tanpa Judul')} ({len(entries)} video)")
+    playlist_folder = os.path.join(base_dir, playlist_title)
+    os.makedirs(playlist_folder, exist_ok=True)
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(download_single_video, entry, mp3_folder): entry for entry in entries}
-            for future in tqdm(as_completed(futures), total=len(futures), desc="Mengunduh playlist", unit="video"):
-                result = future.result()
-                tqdm.write(f"Selesai: {result}")
+    print(f"\n🎶 Playlist: {playlist_title} ({len(entries)} video)\n")
 
-    else:  # Single video
-        print("Video tunggal ditemukan, memulai unduhan...")
-        title = download_single_video(info, mp3_folder)
-        print(f"Audio '{title}' berhasil diunduh.")
+    for index, entry in enumerate(entries, start=1):
+        video_url = f"https://www.youtube.com/watch?v={entry['id']}"
+        print(f"\n🔹 [{index}/{len(entries)}] Mendownload: {entry['title']}")
+        try:
+            download_single_video(video_url, playlist_folder)
+        except Exception as e:
+            print(f"❌ Gagal download {entry['title']}: {e}")
 
+    print(f"\n✅ Playlist '{playlist_title}' selesai diunduh ke folder MP3/{playlist_title}")
 
 def main():
+    base_dir = os.path.join(os.getcwd(), "MP3")
+    os.makedirs(base_dir, exist_ok=True)
+
     while True:
-        url = input("Masukkan Link YouTube (video/playlist) [atau ketik 'exit']: ").strip()
+        url = input("\nMasukkan Link YouTube (atau ketik 'exit' untuk keluar): ").strip()
         if url.lower() == 'exit':
-            print("Program dihentikan.")
+            print("👋 Program dihentikan.")
             break
 
         if not url:
-            print("URL tidak boleh kosong.")
+            print("⚠️  URL tidak diberikan. Silakan coba lagi.")
             continue
 
+        # Deteksi otomatis apakah link adalah playlist
         try:
-            download_mp3(url)
+            test_opts = {
+                'quiet': True,
+                'extract_flat': True,
+                'force_generic_extractor': False,
+            }
+
+            with yt_dlp.YoutubeDL(test_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if 'entries' in info:
+                    download_playlist(url, base_dir)
+                else:
+                    download_single_video(url, base_dir)
+
         except Exception as e:
-            print("Terjadi kesalahan saat mengunduh:", str(e))
+            print(f"❌ Terjadi kesalahan: {e}")
 
-        again = input("Ingin mengunduh lagi? (y/n): ").strip().lower()
-        if again not in ['y', 'yes', '']:
-            print("Program dihentikan.")
+        again = input("Ingin unduh MP3 lain? (y/n): ").strip().lower()
+        if again not in ('y', ''):
+            print("👋 Program dihentikan.")
             break
-
 
 if __name__ == "__main__":
     main()
