@@ -1,54 +1,89 @@
 
-# 🐍 Kumpulan Aplikasi Python Sederhana
+# 🐍 Python Simple App Collection ｜パイソンのシンプルなアプリ集 🎌
 
-Beberapa aplikasi sederhana yang saya buat menggunakan Python. Aplikasi-aplikasi ini bisa berjalan secara langsung melalui virtual environment (`venv`) dan bisa dikompilasi menjadi `.exe` agar mudah dibagikan ke orang lain.
+Welcome to my small collection of useful and fun **Python-based applications**. These apps are designed to run inside a virtual environment (`venv`) and can be compiled into `.exe` files for distribution.This is my practice material when learning python as a beginner programmer.
+
+Whether you're a learner or just looking for a quick tool — ようこそ！✨
 
 ---
 
-## 📦 Langkah Awal (Setup Environment)
+## 📦 Quick Setup ｜セットアップ方法
 
 ```bash
-# 1. Buat virtual environment
+# ① Create a virtual environment
 python -m venv .venv
 
-# 2. Aktifkan venv
-.\.venv\Scripts\activate
+# ② Activate the virtual environment
+.\.venv\Scriptsctivate
 
-# 3. Install semua dependensi
+# ③ Install required dependencies
 pip install -r requirements.txt
-// atau bisa kalian install 1 per 1
-py -m pip install
 
+# 📝 Or install manually:
+py -m pip install <package-name>
+```
 
-🏗️ Build ke File .EXE
-# 1. Aktifkan venv
-.\.venv\Scripts\activate
+---
 
-# 2. Install PyInstaller
+## 🏗️ Build to .EXE ｜.EXE ファイルに変換する方法
+
+```bash
+# ① Activate the virtual environment
+.\.venv\Scriptsctivate
+
+# ② Install PyInstaller if not yet installed
 pip install pyinstaller
 
-# 3. Build .exe dari file Python
+# ③ Build your .py file to .exe
 pyinstaller --noconfirm --onefile NAMA_FILE_KAMU.py
-// lihat tips untuk lebih membantu
+```
 
+📁 The executable will be generated in the `dist/` folder.  
+🔥 Great for sharing apps without requiring Python installation!
 
-📌 Buat freeze requirements.txt
-# 1. Aktifkan venv
-.\.venv\Scripts\activate
+---
 
-# 2. buat daftar dependency
+## 📌 Freeze Dependencies ｜依存関係を書き出す
+
+```bash
+# Inside venv:
 pip freeze > requirements.txt
+```
 
-🚀 Tips
-# Gunakan --console jika ingin output terminal:
-pyinstaller --noconfirm --onefile --console your_app.py
+Then on another system, just:
 
+```bash
+pip install -r requirements.txt
+```
 
-# Gunakan --windowed jika aplikasi menggunakan GUI:
-pyinstaller --noconfirm --onefile --windowed your_app.py
+📦 100% environment replication! 🧪
 
+---
 
-    🔥 Written with **Python** by GENDHUT ❤️   
+## 🚀 PyInstaller Tips ｜ビルドのコツ
 
+- 🖥️ For terminal-based apps:
+  ```bash
+  pyinstaller --noconfirm --onefile --console your_app.py
+  ```
 
-🙌 Terima Kasih!
+- 🪟 For GUI-based apps (like Tkinter):
+  ```bash
+  pyinstaller --noconfirm --onefile --windowed your_app.py
+  ```
+
+---
+---
+
+## ✨ Final Notes ｜最後に…
+
+- Keep your `requirements.txt` updated!
+- Make `.exe` builds for easy sharing with non-developers
+- Keep learning and improving — 応援しています！💪
+
+---
+
+## 🙏 Thank You ｜ありがとうございます！
+
+> Made with ❤️ using **Python** by GENDHUT  
+> 頑張ってください！🚀
