@@ -21,6 +21,8 @@ pip install -r requirements.txt
 
 # 📝 Or install manually:
 py -m pip install <package-name>
+python3 -m pip install <package-name>
+
 ```
 
 ---
