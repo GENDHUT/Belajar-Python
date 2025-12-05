@@ -14,7 +14,7 @@ Whether you're a learner or just looking for a quick tool — ようこそ！✨
 python -m venv .venv
 
 # ② Activate the virtual environment
-.\.venv\Scripts\ctivate
+source .venv/Scripts/activate
 
 # ③ Install required dependencies
 pip install -r requirements.txt
