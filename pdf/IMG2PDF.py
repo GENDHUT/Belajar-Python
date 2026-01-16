@@ -25,7 +25,12 @@ if not output_path:
     exit()
 
 with open(output_path, "wb") as f:
-    f.write(img2pdf.convert(list(file_paths)))
+    f.write(
+        img2pdf.convert(
+            list(file_paths),
+            rotation=img2pdf.Rotation.ifvalid
+        )
+    )
 
 print(f"PDF berhasil dibuat: {output_path}")
 os.startfile(os.path.dirname(output_path))  
